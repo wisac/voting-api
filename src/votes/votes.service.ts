@@ -66,4 +66,10 @@ export class VotesService {
     }
     return vote;
   }
+   
+   
+ async  deleteVote(id: number) {
+       const vote = await this.findOne(id);
+       return this.repo.remove(vote);
+    }
 }

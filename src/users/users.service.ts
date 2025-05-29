@@ -1,4 +1,5 @@
 import {
+   ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -22,11 +23,11 @@ export class UsersService {
   ) {}
 
   async create(data: CreateUserDto) {
-    const plainPassword = '1234';
-    //      randomBytes(8)
-    //   .toString('base64')
-    //   .replace(/[^a-z]/g, '')
-    //   .slice(0, 6);
+    const plainPassword = 
+         randomBytes(8)
+      .toString('base64')
+      .replace(/[^0-9]/g, '')
+      .slice(0, 6);
 
     const passwordHash = await bcrypt.hash(plainPassword, 10);
 
@@ -35,6 +36,12 @@ export class UsersService {
       passwordHash,
       plainPassword,
     });
+     
+
+     if(await this.repo.exists({ where: { email: user.email } })) {
+        throw new ConflictException('User with this email already exists');
+     }
+     
     return this.repo.save(user);
   }
 
@@ -42,10 +49,11 @@ export class UsersService {
     return this.repo.findOne({ where: { email } });
   }
 
-  async findById(id: number) {
+   async findById(id: number) {
+     console.log('Finding user by ID:', id);
     const user = await this.repo.findOne({ where: { id } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User ${id} not found`);
     }
     return user;
   }
@@ -72,7 +80,8 @@ export class UsersService {
     console.log(user);
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
-      return {
+       return {
+         user,
         accessToken: this.jwtService.sign({ sub: user.id, role: user.role }),
       };
     }
@@ -86,4 +95,15 @@ export class UsersService {
       }
       return this.repo.remove(user);
   }
+   
+
+   async deletePicture(
+      userId: number,
+      filename: string,
+   ) {
+      const user = await this.findById(userId);
+
+      user.pictures = user.pictures?.filter(pic => pic !== filename);
+      return this.repo.save(user);
+   }
 }

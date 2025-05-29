@@ -6,6 +6,10 @@ export class CreateUserDto {
    @IsEmail()
    email: string;
 
+   @ApiProperty({ example: 'John Doe', description: 'User name' })
+   @IsNotEmpty()
+   name: string;
+
    @ApiProperty({ example: 'admin', enum: ['admin', 'user'], description: 'User role' })
    @IsIn(['admin', 'user'])
    role: 'admin' | 'user';
