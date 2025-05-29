@@ -25,9 +25,13 @@ export class VotesService {
     const oldVotes = await this.repo.find({
       where: {
         recipient: {
-          id: Equal(recipientId),
-          gender: Equal(recipient.gender),
-        },
+         //  id: Equal(recipientId),
+            gender: Equal(recipient.gender),
+          subsidiary: Equal(recipient.subsidiary),
+          },
+          voter: {
+            id: Equal(voterId),
+         }
       },
     });
 
