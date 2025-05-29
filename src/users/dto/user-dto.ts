@@ -4,7 +4,8 @@ import { User } from '../entities/user.entity';
 
 export class UserDto extends User {
   constructor(user: User, serverUrl: string) {
-    super();
+     super();
+     this.id = user.id;
     this.email = user.email;
     this.name = user.name;
     this.role = user.role;

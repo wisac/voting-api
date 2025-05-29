@@ -32,27 +32,24 @@ export class UsersController {
 
   // login
   @Post('login')
-  async login(@Body() body: CreateAuthDto
-   , @Req() req: Request) 
-   {
+  async login(@Body() body: CreateAuthDto, @Req() req: Request) {
     console.log(body);
-    const data = await this.usersService.login(body.email, body.password)
-     return {
+    const data = await this.usersService.login(body.email, body.password);
+    return {
       accessToken: data.accessToken,
       user: new UserDto(data.user, `${req.protocol}://${req.get('host')}`),
-     }
-   }
+    };
+  }
 
   // create user
   @Post()
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles('admin')
-  async create(@Body(
-     
-  ) dto: CreateUserDto,
-  @Req() req: Request) {
-     return new UserDto(await this.usersService.create(dto),
-       `${req.protocol}://${req.get('host')}`);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async create(@Body() dto: CreateUserDto, @Req() req: Request) {
+    return new UserDto(
+      await this.usersService.create(dto),
+      `${req.protocol}://${req.get('host')}`,
+    );
   }
 
   // upload picture
@@ -84,9 +81,12 @@ export class UsersController {
     @Param('userId') userId: number,
     @Req() req: Request,
   ) {
-   const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
 
-    return new UserDto(await this.usersService.uploadPicture(userId, file.filename),uploadsUrl);
+    return new UserDto(
+      await this.usersService.uploadPicture(userId, file.filename),
+      uploadsUrl,
+    );
     // return { filename: file.filename, path: file.path };
   }
 
@@ -95,15 +95,15 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async findAll(@Req() req: Request) {
-     
-   const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
     return (await this.usersService.findAll()).map(
       (user) => new UserDto(user, uploadsUrl),
     );
   }
 
   // get user by id
-  @Get(':id')
+   @Get(':id')
+   @UseGuards(JwtAuthGuard)
   async findById(@Param('id') id: number, @Req() req: Request) {
     const uploadsUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -112,14 +112,14 @@ export class UsersController {
 
   // delete user by id
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async delete(
     @Req() req: Request,
     @Param('id') id: number, // Corrected the parameter name to 'id' for clarity
   ) {
-     
-   const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
 
-    return new UserDto(await this.usersService.delete(id),uploadsUrl);
+    return new UserDto(await this.usersService.delete(id), uploadsUrl);
   }
 
   // delete user picture
