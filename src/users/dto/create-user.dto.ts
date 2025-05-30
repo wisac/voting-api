@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsIn } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsIn, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -22,4 +22,8 @@ export class CreateUserDto {
    @ApiProperty({ example: 'estate-masters', enum: ['estate-masters', 'hannex', 'nestas', 'dwellys'], description: 'Subsidiary name' })
    @IsIn(['estate-masters', 'hannex', 'nestas', 'dwellys'])
    subsidiary: 'estate-masters' | 'hannex' | 'nestas' | 'dwellys';
+
+
+   @IsOptional()
+   password?: string;
 }

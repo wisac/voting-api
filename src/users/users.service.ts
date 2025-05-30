@@ -32,7 +32,7 @@ export class UsersService {
      
    console.log('Random numbers:', randomNumbers);
 
-   const plainPassword = randomNumbers
+   const plainPassword = data.password ? data.password : randomNumbers
    //     randomBytes(8)
    //   .toString('base64')
    //   .replace(/[^0-9]/g, '')
