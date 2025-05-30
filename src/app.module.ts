@@ -11,7 +11,7 @@ import { join } from 'path';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'voting.db',
+      database: 'votes.db',
       synchronize: true,
       entities: [User, Vote],
     }),

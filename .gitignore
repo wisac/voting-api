@@ -2,8 +2,9 @@
 /dist
 /node_modules
 /build
-
 voting.db
+*.db
+
 
 # Logs
 logs
