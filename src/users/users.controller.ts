@@ -10,6 +10,7 @@ import {
   Delete,
   BadRequestException,
   Req,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -43,8 +44,8 @@ export class UsersController {
 
   // create user
   @Post()
-//   @UseGuards(JwtAuthGuard, RolesGuard)
-//   @Roles('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   async create(@Body() dto: CreateUserDto, @Req() req: Request) {
     return new UserDto(
       await this.usersService.create(dto),
@@ -131,5 +132,20 @@ export class UsersController {
     @Param('filename') filename: string,
   ) {
     return this.usersService.deletePicture(userId, filename);
+  }
+   
+   
+
+   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async update(
+    @Param('id') id: number,
+    @Body() dto: CreateUserDto,
+    @Req() req: Request,
+  ) {
+    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+    const user = await this.usersService.update(id, dto);
+    return new UserDto(user, uploadsUrl);
   }
 }

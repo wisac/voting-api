@@ -1,5 +1,5 @@
 import {
-   ConflictException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -23,20 +23,21 @@ export class UsersService {
   ) {}
 
   async create(data: CreateUserDto) {
-   // Generate 5 random numbers
-   const randomNumbers = Array.from({ length: 5 }, () =>
-     Math.floor(Math.random() * 1000000)
-   ).join('')
-   
-   .slice(0, 6); // Ensure it's 6 digits long
-     
-   console.log('Random numbers:', randomNumbers);
+    // Generate 5 random numbers
+    const randomNumbers = Array.from({ length: 5 }, () =>
+      Math.floor(Math.random() * 1000000),
+    )
+      .join('')
 
-   const plainPassword = data.password ? data.password : randomNumbers
-   //     randomBytes(8)
-   //   .toString('base64')
-   //   .replace(/[^0-9]/g, '')
-   //   .slice(0, 6);
+      .slice(0, 6); // Ensure it's 6 digits long
+
+    console.log('Random numbers:', randomNumbers);
+
+    const plainPassword = data.password ? data.password : randomNumbers;
+    //     randomBytes(8)
+    //   .toString('base64')
+    //   .replace(/[^0-9]/g, '')
+    //   .slice(0, 6);
 
     const passwordHash = await bcrypt.hash(plainPassword, 10);
 
@@ -45,12 +46,11 @@ export class UsersService {
       passwordHash,
       plainPassword,
     });
-     
 
-     if(await this.repo.exists({ where: { email: user.email } })) {
-        throw new ConflictException('User with this email already exists');
-     }
-     
+    if (await this.repo.exists({ where: { email: user.email } })) {
+      throw new ConflictException('User with this email already exists');
+    }
+
     return this.repo.save(user);
   }
 
@@ -58,8 +58,8 @@ export class UsersService {
     return this.repo.findOne({ where: { email } });
   }
 
-   async findById(id: number) {
-     console.log('Finding user by ID:', id);
+  async findById(id: number) {
+    console.log('Finding user by ID:', id);
     const user = await this.repo.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User ${id} not found`);
@@ -74,12 +74,11 @@ export class UsersService {
   async uploadPicture(userId: number, filename: string) {
     const user = await this.findById(userId);
 
-     if (user.pictures) {
-        user.pictures.push(filename);
-     }
-      else {
-         user.pictures = [filename];
-      }
+    if (user.pictures) {
+      user.pictures.push(filename);
+    } else {
+      user.pictures = [filename];
+    }
     return this.repo.save(user);
   }
 
@@ -89,8 +88,8 @@ export class UsersService {
     console.log(user);
 
     if (user && (await bcrypt.compare(password, user.passwordHash))) {
-       return {
-         user,
+      return {
+        user,
         accessToken: this.jwtService.sign({ sub: user.id, role: user.role }),
       };
     }
@@ -98,21 +97,44 @@ export class UsersService {
   }
 
   async delete(id: number) {
-      const user = await this.findById(id);
-      if (!user) {
-         throw new NotFoundException('User not found');
-      }
-      return this.repo.remove(user);
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.repo.remove(user);
   }
-   
 
-   async deletePicture(
-      userId: number,
-      filename: string,
-   ) {
-      const user = await this.findById(userId);
+  async deletePicture(userId: number, filename: string) {
+    const user = await this.findById(userId);
 
-      user.pictures = user.pictures?.filter(pic => pic !== filename);
-      return this.repo.save(user);
-   }
+    user.pictures = user.pictures?.filter((pic) => pic !== filename);
+    return this.repo.save(user);
+  }
+
+  async update(id: number, data: Partial<CreateUserDto>) {
+    const user = await this.repo.preload({
+      id,
+      ...data,
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User ${id} not found`);
+    }
+
+    const randomNumbers = Array.from({ length: 5 }, () =>
+      Math.floor(Math.random() * 1000000),
+    )
+      .join('')
+
+      .slice(0, 6); // Ensure it's 6 digits long
+
+    const plainPassword = data.password ? data.password : randomNumbers;
+
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+
+    user.plainPassword = plainPassword;
+    user.passwordHash = passwordHash;
+
+    return this.repo.save(user);
+  }
 }
