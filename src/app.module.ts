@@ -11,14 +11,14 @@ import { join } from 'path';
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
-      database: 'votes.db',
+      database: 'storage/voting.db',
       synchronize: true,
       entities: [User, Vote],
     }),
     UsersModule,
       VotesModule,
       ServeStaticModule.forRoot({
-         rootPath: join(__dirname, '..', 'uploads'),
+         rootPath: join(__dirname, '..', 'storage'),
        }),
      ],
   
