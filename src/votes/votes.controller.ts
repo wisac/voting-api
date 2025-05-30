@@ -16,7 +16,6 @@ import { Request } from 'express';
 import { Equal } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { UserDto } from 'src/users/dto/user-dto';
-import { K } from 'handlebars';
 import { privateDecrypt } from 'crypto';
 
 @Controller('votes')
@@ -181,6 +180,7 @@ export class VotesController {
         totalVotes: userVotesCount,
       };
     });
+     
 
     userVotes.sort((a, b) => a.totalVotes - b.totalVotes);
 
