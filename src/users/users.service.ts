@@ -23,11 +23,20 @@ export class UsersService {
   ) {}
 
   async create(data: CreateUserDto) {
-    const plainPassword = 
-         randomBytes(8)
-      .toString('base64')
-      .replace(/[^0-9]/g, '')
-      .slice(0, 6);
+   // Generate 5 random numbers
+   const randomNumbers = Array.from({ length: 5 }, () =>
+     Math.floor(Math.random() * 1000000)
+   ).join('')
+   
+   .slice(0, 6); // Ensure it's 6 digits long
+     
+   console.log('Random numbers:', randomNumbers);
+
+   const plainPassword = randomNumbers
+   //     randomBytes(8)
+   //   .toString('base64')
+   //   .replace(/[^0-9]/g, '')
+   //   .slice(0, 6);
 
     const passwordHash = await bcrypt.hash(plainPassword, 10);
 

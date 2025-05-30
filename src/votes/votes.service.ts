@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -13,14 +14,20 @@ import { Vote } from './entities/vote.entity';
 export class VotesService {
   constructor(
     @InjectRepository(Vote) private repo: Repository<Vote>,
-    private usersService: UsersService,
-  ) {}
+     private usersService: UsersService,
+    private  logger: Logger 
+  ) {
+     this.logger = new Logger('' ,{
+         timestamp: true
+      })
+  }
 
   async castVote(voterId: number, recipientId: number) {
     const voter = await this.usersService.findById(voterId);
 
     const recipient = await this.usersService.findById(recipientId);
 
+  
     // find existing votes for new vote gender and delete
     const oldVotes = await this.repo.find({
       where: {
@@ -32,14 +39,24 @@ export class VotesService {
           voter: {
             id: Equal(voterId),
          }
-      },
+       },
+       relations: ['recipient', 'voter'],
     });
 
-    for (const vote of oldVotes) {
+     for (const vote of oldVotes) {
+      console.error('Removing old vote: ', [vote.recipient.email, vote.recipient.gender, vote.recipient.subsidiary]);
       await this.repo.remove(vote);
     }
 
-    const vote = this.repo.create({ voter, recipient });
+     const vote = this.repo.create({ voter, recipient });
+     
+     console.error( voter.email + ' voted for', [
+       recipient.email,
+       recipient.gender,
+        recipient.subsidiary,
+       
+     ],'at', new Date().toISOString());
+
     return this.repo.save(vote);
   }
 

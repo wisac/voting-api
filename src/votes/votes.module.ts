@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { VotesService } from './votes.service';
@@ -8,7 +8,7 @@ import { Vote } from './entities/vote.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Vote]), UsersModule],
-  providers: [VotesService],
+  providers: [VotesService,Logger],
   controllers: [VotesController],
 })
 export class VotesModule {}

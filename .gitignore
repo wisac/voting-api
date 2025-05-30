@@ -3,6 +3,8 @@
 /node_modules
 /build
 
+voting.db
+
 # Logs
 logs
 *.log
