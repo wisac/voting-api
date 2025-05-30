@@ -25,6 +25,7 @@ import { ApiBearerAuth, ApiConsumes, ApiExtraModels } from '@nestjs/swagger';
 import { CreateAuthDto } from 'src/users/dto/create-auth.dto';
 import { UserDto } from './dto/user-dto';
 import { Request } from 'express';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 @ApiExtraModels(CreateUserDto)
@@ -141,7 +142,7 @@ export class UsersController {
   @Roles('admin')
   async update(
     @Param('id') id: number,
-    @Body() dto: CreateUserDto,
+    @Body() dto: UpdateUserDto,
     @Req() req: Request,
   ) {
     const uploadsUrl = `${req.protocol}://${req.get('host')}`;
