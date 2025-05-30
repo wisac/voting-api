@@ -101,6 +101,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+     // delete child entities if any
+     
+     
     return this.repo.remove(user);
   }
 

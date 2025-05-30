@@ -13,10 +13,16 @@ export class Vote {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+   @ManyToOne(() => User, {
+      onDelete: 'CASCADE',
+      eager: true,
+  })
   voter: User;
 
-  @ManyToOne(() => User)
+   @ManyToOne(() => User, {
+      onDelete: 'CASCADE',
+      eager: true,
+  })
   recipient: User;
 
   @CreateDateColumn()
