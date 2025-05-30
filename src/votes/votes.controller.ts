@@ -11,6 +11,9 @@ import { VotesService } from './votes.service';
 import { JwtAuthGuard } from '../users/guards/jwt.guard';
 import { VoteDto } from './dto/vote-dto';
 import { Request } from 'express';
+import { Equal } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { UserDto } from 'src/users/dto/user-dto';
 
 @Controller('votes')
 @UseGuards(JwtAuthGuard)
@@ -19,6 +22,7 @@ export class VotesController {
 
   @Post(':recipientId')
   async vote(@Req() req, @Param('recipientId') recipientId: number) {
+     console.log('req.user.id', req.user.id);
     return new VoteDto(
       await this.votesService.castVote(req.user.id, recipientId),
       `${req.protocol}://${req.get('host')}`,
@@ -71,4 +75,90 @@ export class VotesController {
       return new VoteDto(vote, `${req.protocol}://${req.get('host')}`);
     });
   }
+
+  @Get('ranking/overall-best/:gender')
+  async overallBestGender(
+    @Req() req: Request,
+    @Param('gender') gender: 'female' | 'male',
+  ) {
+    const votes = await this.votesService.findByAny({
+      where: {
+        recipient: {
+          gender: Equal(gender),
+        },
+      },
+    });
+
+    const users = votes.map((vote) => vote.recipient);
+    const uniqueUsers = Array.from(new Set(users.map((user) => user.id))).map(
+      (id) => users.find((user) => user.id === id),
+    );
+
+    const userVotes = uniqueUsers.map((user) => {
+      const userVotesCount = votes.filter(
+        (vote) => vote.recipient.id === user?.id,
+      ).length;
+
+      return {
+        user,
+        totalVotes: userVotesCount,
+      };
+    });
+
+    userVotes.sort((a, b) => a.totalVotes - b.totalVotes );
+
+    return userVotes.map((uv) => {
+      return {
+        user: new UserDto(
+          uv.user as User,
+          `${req.protocol}://${req.get('host')}`,
+        ),
+        totalVotes: uv.totalVotes,
+      };
+    });
+  }
+
+
+   @Get('ranking/best/:subsidiary/:gender')
+   async bestBySubsidiaryAndGender(
+      @Req() req: Request,
+      @Param('subsidiary') subsidiary: 'estate-masters' | 'hannex' | 'nestas' | 'dwellys',
+      @Param('gender') gender: 'male' | 'female')
+   {
+      const votes = await this.votesService.findByAny({
+         where: {
+            recipient: {
+               subsidiary: Equal(subsidiary),
+               gender: Equal(gender)
+            }
+         }
+      });
+
+
+      const users = votes.map((vote) => vote.recipient);
+      const uniqueUsers = Array.from(new Set(users.map((user) => user.id))).map(
+         (id) => users.find((user) => user.id === id),
+      );
+      const userVotes = uniqueUsers.map((user) => {
+         const userVotesCount = votes.filter(
+            (vote) => vote.recipient.id === user?.id,
+         ).length;
+
+         return {
+            user,
+            totalVotes: userVotesCount,
+         };
+      }
+      );
+      userVotes.sort((a, b) => a.totalVotes - b.totalVotes);
+
+      return {
+         user: userVotes.at(-1)?.user ? new UserDto(
+            userVotes.at(-1)?.user as User,
+            `${req.protocol}://${req.get('host')}`,
+         ) : null,
+         totalVotes: userVotes.at(-1)?.totalVotes || 0,
+      }
+
+   }
 }
