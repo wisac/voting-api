@@ -67,8 +67,11 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return this.repo.find();
+ async findAll() {
+   const users = await this.repo.find();
+   // Randomize the order of users
+   const shuffled = users.sort(() => Math.random() - 0.5);
+   return shuffled;
   }
 
   async uploadPicture(userId: number, filename: string) {
