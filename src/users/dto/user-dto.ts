@@ -14,6 +14,7 @@ export class UserDto extends User {
     this.pictures = user.pictures.map((pic) => {
       return `${serverUrl}/${pic}`;
     });
-    this.plainPassword = user.plainPassword;
+     this.plainPassword = user.plainPassword;
+     this.description = user.description
   }
 }

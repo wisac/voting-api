@@ -14,6 +14,7 @@ import { randomBytes } from 'crypto';
 import { NotFoundError } from 'rxjs';
 
 import { JwtService } from '@nestjs/jwt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -118,7 +119,9 @@ export class UsersService {
     return this.repo.save(user);
   }
 
-  async update(id: number, data: Partial<CreateUserDto>) {
+  async update(id: number, data: UpdateUserDto) {
+
+     console.log(data)
     const user = await this.repo.preload({
       id,
       ...data,
@@ -144,4 +147,12 @@ export class UsersService {
 
     return this.repo.save(user);
   }
+
+   
+   async addDescription(userId: number, description: string) {
+      const user = await this.findById(userId)
+      user.description = description ?? user.description
+
+      return this.repo.save(user)
+   }
 }

@@ -38,4 +38,11 @@ export class User {
     nullable: true,
   })
   subsidiary: 'estate-masters' | 'hannex' | 'nestas' | 'dwellys';
+
+
+  @Column({
+   nullable: true,
+   type: 'text'
+  })
+  description: string
 }

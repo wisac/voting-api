@@ -149,4 +149,19 @@ export class UsersController {
     const user = await this.usersService.update(id, dto);
     return new UserDto(user, uploadsUrl);
   }
+
+
+
+   @Patch('add-description/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async addDescription(
+    @Param('id') id: number,
+    @Body() dto: UpdateUserDto,
+    @Req() req: Request,
+  ) {
+    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+    const user = await this.usersService.addDescription(id, dto.description || '');
+    return new UserDto(user, uploadsUrl);
+  }
 }
