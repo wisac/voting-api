@@ -196,5 +196,6 @@ export class VotesController {
   }
 }
 
-export type Subsidiary = 'estate-masters' | 'hannex' | 'nestas' | 'dwellys';
+export type Subsidiary = 'estate-masters' | 'hannex' | 'nestas' | 'dwellys' | 'kasoa';
+
 export type Gender = 'male' | 'female';

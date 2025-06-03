@@ -1,3 +1,4 @@
+import { Subsidiary } from 'src/votes/votes.controller';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
@@ -37,7 +38,7 @@ export class User {
   @Column({
     nullable: true,
   })
-  subsidiary: 'estate-masters' | 'hannex' | 'nestas' | 'dwellys';
+  subsidiary: Subsidiary
 
 
   @Column({

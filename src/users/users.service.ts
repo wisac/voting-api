@@ -68,11 +68,11 @@ export class UsersService {
     return user;
   }
 
- async findAll() {
-   const users = await this.repo.find();
-   // Randomize the order of users
-   const shuffled = users.sort(() => Math.random() - 0.5);
-   return shuffled;
+  async findAll() {
+    const users = await this.repo.find();
+    // Randomize the order of users
+    const shuffled = users.sort(() => Math.random() - 0.5);
+    return shuffled;
   }
 
   async uploadPicture(userId: number, filename: string) {
@@ -106,9 +106,8 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-     // delete child entities if any
-     
-     
+    // delete child entities if any
+
     return this.repo.remove(user);
   }
 
@@ -120,8 +119,7 @@ export class UsersService {
   }
 
   async update(id: number, data: UpdateUserDto) {
-
-     console.log(data)
+    console.log(data);
     const user = await this.repo.preload({
       id,
       ...data,
@@ -131,28 +129,28 @@ export class UsersService {
       throw new NotFoundException(`User ${id} not found`);
     }
 
-    const randomNumbers = Array.from({ length: 5 }, () =>
-      Math.floor(Math.random() * 1000000),
-    )
-      .join('')
+    //  const randomNumbers = Array.from({ length: 5 }, () =>
+    //    Math.floor(Math.random() * 1000000),
+    //  )
+    //    .join('')
 
-      .slice(0, 6); // Ensure it's 6 digits long
+    //    .slice(0, 6); // Ensure it's 6 digits long
 
-    const plainPassword = data.password ? data.password : randomNumbers;
+    if (data.password) {
+      const plainPassword = data.password;
 
-    const passwordHash = await bcrypt.hash(plainPassword, 10);
-
-    user.plainPassword = plainPassword;
-    user.passwordHash = passwordHash;
+      const passwordHash = await bcrypt.hash(plainPassword, 10);
+      user.plainPassword = plainPassword;
+      user.passwordHash = passwordHash;
+    }
 
     return this.repo.save(user);
   }
 
-   
-   async addDescription(userId: number, description: string) {
-      const user = await this.findById(userId)
-      user.description = description ?? user.description
+  async addDescription(userId: number, description: string) {
+    const user = await this.findById(userId);
+    user.description = description ?? user.description;
 
-      return this.repo.save(user)
-   }
+    return this.repo.save(user);
+  }
 }

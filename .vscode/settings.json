@@ -1,15 +1,15 @@
 {
   "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "*.code-workspace": true,
-    "challenge.html": true,
-    "indexx.html": true,
-    "mycode.html": true
-  },
+   "**/.git": true,
+   "**/.svn": true,
+   "**/.hg": true,
+   "**/.DS_Store": true,
+   "**/Thumbs.db": true,
+   "*.code-workspace": true,
+   "challenge.html": true,
+   "indexx.html": true,
+   "mycode.html": true
+},
   "hide-files.files": [],
   "cSpell.words": ["dwellys", "hannex"]
 }
