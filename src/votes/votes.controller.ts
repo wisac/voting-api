@@ -17,11 +17,15 @@ import { Equal } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { UserDto } from 'src/users/dto/user-dto';
 import { privateDecrypt } from 'crypto';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('votes')
 @UseGuards(JwtAuthGuard)
 export class VotesController {
-  constructor(private votesService: VotesService) {}
+  constructor(
+    private votesService: VotesService,
+    private userService: UsersService,
+  ) {}
 
   @Post(':recipientId')
   async vote(@Req() req, @Param('recipientId') recipientId: number) {
@@ -57,9 +61,17 @@ export class VotesController {
     @Param('recipientId') recipientId: number,
     @Req() req: Request,
   ) {
+    const subsidiary = (await this.userService.findById(recipientId))
+      .subsidiary;
+
     return (
       await this.votesService.findByAny({
-        where: { recipient: { id: recipientId } },
+        where: {
+          recipient: { id: recipientId },
+          voter: {
+            subsidiary: subsidiary,
+          },
+        },
       })
     ).map((vote) => new VoteDto(vote, `${req.protocol}://${req.get('host')}`));
   }
@@ -70,9 +82,15 @@ export class VotesController {
 
     @Req() req: Request,
   ) {
+     
+     const subsidiary = (await this.userService.findById(voterId)).subsidiary;
+     
     return (
       await this.votesService.findByAny({
-        where: { voter: { id: voterId } },
+         where: {
+            voter: { id: voterId }, recipient: {
+           subsidiary: subsidiary
+        } },
       })
     ).map((vote) => {
       return new VoteDto(vote, `${req.protocol}://${req.get('host')}`);
@@ -125,7 +143,10 @@ export class VotesController {
         recipient: {
           subsidiary: Equal(subsidiary),
           gender: Equal(gender),
-        },
+          },
+          voter: {
+            subsidiary: Equal(subsidiary)
+         }
       },
     });
 
@@ -180,7 +201,6 @@ export class VotesController {
         totalVotes: userVotesCount,
       };
     });
-     
 
     userVotes.sort((a, b) => a.totalVotes - b.totalVotes);
 
@@ -196,6 +216,11 @@ export class VotesController {
   }
 }
 
-export type Subsidiary = 'estate-masters' | 'hannex' | 'nestas' | 'dwellys' | 'kasoa';
+export type Subsidiary =
+  | 'estate-masters'
+  | 'hannex'
+  | 'nestas'
+  | 'dwellys'
+  | 'kasoa';
 
 export type Gender = 'male' | 'female';

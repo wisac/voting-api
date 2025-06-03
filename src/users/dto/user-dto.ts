@@ -3,7 +3,8 @@ import { CreateUserDto } from './create-user.dto';
 import { User } from '../entities/user.entity';
 
 export class UserDto extends User {
-  constructor(user: User, serverUrl: string) {
+   totalVotes?: number
+  constructor(user: User, serverUrl: string,totalVotes?: number) {
      super();
      this.id = user.id;
     this.email = user.email;
@@ -16,5 +17,8 @@ export class UserDto extends User {
     });
      this.plainPassword = user.plainPassword;
      this.description = user.description
+     this.totalVotes = totalVotes
+     
   }
+   
 }

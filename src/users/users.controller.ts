@@ -26,11 +26,13 @@ import { CreateAuthDto } from 'src/users/dto/create-auth.dto';
 import { UserDto } from './dto/user-dto';
 import { Request } from 'express';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { VotesService } from 'src/votes/votes.service';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 @ApiExtraModels(CreateUserDto)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService, private voteService: VotesService) {}
 
   // login
   @Post('login')
@@ -97,9 +99,34 @@ export class UsersController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async findAll(@Req() req: Request) {
-    const uploadsUrl = `${req.protocol}://${req.get('host')}`;
-    return (await this.usersService.findAll()).map(
-      (user) => new UserDto(user, uploadsUrl),
+     
+     const uploadsUrl = `${req.protocol}://${req.get('host')}`;
+     
+
+     const users = await this.usersService.findAll();
+
+     const output: {user: User, totalVotes: number}[] = []
+
+     for (const user of users) {
+         const totalVotes = await this.voteService.findByAny({
+            where: {
+              recipient: { id: user.id },
+              voter: {
+                subsidiary: user.subsidiary,
+              },
+            },
+          });
+
+        output.push({
+           user,
+           totalVotes: totalVotes.length
+        })
+     } 
+
+    return output.map(
+       (out) => new UserDto(out.user, uploadsUrl, out.totalVotes
+         
+      ),
     );
   }
 
@@ -109,7 +136,18 @@ export class UsersController {
   async findById(@Param('id') id: number, @Req() req: Request) {
     const uploadsUrl = `${req.protocol}://${req.get('host')}`;
 
-    return new UserDto(await this.usersService.findById(id), uploadsUrl);
+    const user = await this.usersService.findById(id);
+
+      
+    const totalVotes = await this.voteService.findByAny({
+      where: {
+        recipient: { id: id },
+        voter: {
+          subsidiary: user.subsidiary,
+        },
+      },
+    });
+    return new UserDto(user, uploadsUrl,totalVotes.length);
   }
 
   // delete user by id
